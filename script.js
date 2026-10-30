@@ -2,106 +2,129 @@
 console.log('JavaScript file is linked correctly.');
 
 
+
 const playButton = document.getElementById("playButton");
 const restartButton = document.getElementById("restartButton");
+const leverButton = document.getElementById("leverButton");
+const leverText = document.getElementById("leverText");
+const leverHandle = document.getElementById("leverHandle");
 const difficultySelect = document.getElementById("difficulty");
 
 const startScreen = document.getElementById("startScreen");
 const gameOverScreen = document.getElementById("gameOverScreen");
 const gameOverMessage = document.getElementById("gameOverMessage");
+const endTitle = document.getElementById("endTitle");
 
 const scoreDisplay = document.getElementById("score");
-const timerDisplay = document.getElementById("timer");
 const highScoreDisplay = document.getElementById("highScore");
-const finalScoreDisplay = document.getElementById("finalScore");
+const timerDisplay = document.getElementById("timer");
+const roundDisplay = document.getElementById("round");
 const targetScoreDisplay = document.getElementById("targetScore");
+const finalScoreDisplay = document.getElementById("finalScore");
 const progressBar = document.getElementById("progressBar");
-
 const instructions = document.getElementById("instructions");
 const trashArea = document.getElementById("trashArea");
+const water = document.getElementById("water");
 
 const buckets = document.querySelectorAll(".bucket");
 const ropes = document.querySelectorAll(".rope");
+const labels = document.querySelectorAll(".bucket-label");
 
 // DIFFICULTY SETTINGS
 const difficulties = {
-  easy: {
-    time: 90,
-    target: 300,
-    trashPerLane: 1
-  },
-  normal: {
-    time: 60,
-    target: 500,
-    trashPerLane: 2
-  },
-  hard: {
-    time: 30,
-    target: 700,
-    trashPerLane: 3
-  }
+  easy: { time: 90, target: 300, trash: 1 },
+  normal: { time: 60, target: 500, trash: 2 },
+  hard: { time: 30, target: 700, trash: 3 }
 };
 
 // GAME VARIABLES
 let score = 0;
+let highScore = 0;
 let timeLeft = 90;
+let round = 1;
+let greenBucket = -1;
 let gameRunning = false;
+let bucketState = "raised";
 let timerInterval = null;
 let animationTimeout = null;
-let activeBucket = null;
-let bucketState = "idle";
-let bucketStartTime = 0;
-let currentDifficulty = difficulties.easy;
-
-let highScore = 0;
+let settings = difficulties.easy;
+let roundToken = 0;
 
 try {
   highScore = Number(localStorage.getItem("highScore")) || 0;
 } catch (error) {
-  console.log("Local storage unavailable.");
+  highScore = 0;
 }
 
 highScoreDisplay.textContent = highScore;
 
-// UPDATE DIFFICULTY PREVIEW
-function updateDifficultyPreview() {
-  const settings = difficulties[difficultySelect.value];
-
+// SHOW DIFFICULTY SETTINGS
+function previewDifficulty() {
+  settings = difficulties[difficultySelect.value];
   timerDisplay.textContent = settings.time;
   targetScoreDisplay.textContent = settings.target;
 }
 
-difficultySelect.addEventListener(
-  "change",
-  updateDifficultyPreview
-);
+difficultySelect.addEventListener("change", previewDifficulty);
+
+// RANDOMLY SELECT GREEN BUCKET
+function chooseGreenBucket() {
+  let nextBucket;
+
+  // Choose a different bucket from the previous round
+  do {
+    nextBucket = Math.floor(Math.random() * 3);
+  } while (nextBucket === greenBucket);
+
+  greenBucket = nextBucket;
+
+  buckets.forEach((bucket, index) => {
+    const isGreen = index === greenBucket;
+
+    bucket.classList.toggle("green", isGreen);
+
+    labels[index].textContent = isGreen
+      ? "♻️ TRASH"
+      : "💧 WATER";
+
+    labels[index].classList.toggle("trash-label", isGreen);
+  });
+}
 
 // START GAME
 function startGame() {
   clearInterval(timerInterval);
   clearTimeout(animationTimeout);
+  roundToken++;
 
-  currentDifficulty = difficulties[difficultySelect.value];
+  settings = difficulties[difficultySelect.value];
 
   score = 0;
-  timeLeft = currentDifficulty.time;
+  round = 1;
+  timeLeft = settings.time;
+  greenBucket = -1;
   gameRunning = true;
-  activeBucket = null;
-  bucketState = "idle";
+  bucketState = "raised";
 
   scoreDisplay.textContent = score;
+  roundDisplay.textContent = round;
   timerDisplay.textContent = timeLeft;
-  targetScoreDisplay.textContent = currentDifficulty.target;
+  targetScoreDisplay.textContent = settings.target;
   progressBar.style.width = "0%";
 
   startScreen.classList.add("hidden");
   gameOverScreen.classList.add("hidden");
 
   resetBuckets();
+  chooseGreenBucket();
   createTrash();
 
+  leverButton.disabled = false;
+  leverText.textContent = "LOWER";
+  leverHandle.textContent = "🔴";
+
   instructions.textContent =
-    "Tap a bucket to lower it into the water!";
+    "Click the lever to lower all three buckets!";
 
   timerInterval = setInterval(() => {
     if (!gameRunning) return;
@@ -115,278 +138,306 @@ function startGame() {
   }, 1000);
 }
 
-// RESET BUCKETS
+// RESET BUCKET POSITIONS
 function resetBuckets() {
   buckets.forEach(bucket => {
-    bucket.classList.remove("lowered", "filled");
-    bucket.disabled = false;
+    bucket.classList.remove("lowered");
   });
 
   ropes.forEach(rope => {
     rope.classList.remove("lowered");
   });
+
+  labels.forEach(label => {
+    label.classList.remove("lowered");
+  });
 }
 
-// CREATE TRASH FOR EACH WELL
+// CREATE TRASH IN WATER LANES
 function createTrash() {
   trashArea.replaceChildren();
 
-  const trashTypes = ["🦠", "🗑️", "🥫", "🧴", "🍂"];
-  const positions = [16, 50, 84];
+  const trashTypes = ["🦠", "🥫", "🧴", "🗑️", "🍂"];
 
-  positions.forEach((position, lane) => {
-    for (
-      let i = 0;
-      i < currentDifficulty.trashPerLane;
-      i++
-    ) {
+  for (let lane = 0; lane < 3; lane++) {
+    // Green lane starts clean
+    if (lane === greenBucket) continue;
+
+    for (let i = 0; i < settings.trash; i++) {
       const item = document.createElement("div");
 
-      item.classList.add("trash");
-
+      item.className = "trash";
       item.textContent = trashTypes[
         Math.floor(Math.random() * trashTypes.length)
       ];
 
-      const offset = (
-        i - (currentDifficulty.trashPerLane - 1) / 2
-      ) * 5;
-
-      item.style.left =
-        `calc(${position + offset}% - 18px)`;
-
-      item.style.top = `${8 + i * 32}px`;
-
       item.dataset.lane = lane;
 
-      trashArea.appendChild(item);
+      const position = getLaneCenter(lane);
+      const offset = (i - (settings.trash - 1) / 2) * 25;
 
-      enableSwipe(item);
+      item.style.left = `${position + offset}px`;
+      item.style.top = `${8 + i * 34}px`;
+      item.style.transform = "translateX(-50%)";
+
+      trashArea.appendChild(item);
+      enableTrashSwipe(item);
     }
-  });
+  }
 }
 
-// SWIPE TRASH TO REMOVE IT
-function enableSwipe(item) {
+// GET HORIZONTAL CENTER OF A BUCKET
+// Coordinates are relative to the trash area.
+function getLaneCenter(lane) {
+  const bucketRect = buckets[lane].getBoundingClientRect();
+  const areaRect = trashArea.getBoundingClientRect();
+
+  return bucketRect.left +
+    bucketRect.width / 2 -
+    areaRect.left;
+}
+
+// SWIPE TRASH INTO GREEN BUCKET
+function enableTrashSwipe(item) {
   let startX = 0;
   let startY = 0;
+  let dragging = false;
 
   item.addEventListener("pointerdown", event => {
-    if (!gameRunning) return;
+    if (!gameRunning || bucketState !== "lowered") return;
 
     startX = event.clientX;
     startY = event.clientY;
+    dragging = true;
 
+    item.classList.add("dragging");
     item.setPointerCapture(event.pointerId);
   });
 
   item.addEventListener("pointerup", event => {
-    if (!gameRunning) return;
+    if (!dragging) return;
 
-    const distanceX = event.clientX - startX;
-    const distanceY = event.clientY - startY;
+    dragging = false;
+    item.classList.remove("dragging");
+
+    if (!gameRunning || bucketState !== "lowered") return;
 
     const distance = Math.hypot(
-      distanceX,
-      distanceY
+      event.clientX - startX,
+      event.clientY - startY
     );
 
-    if (distance > 35) {
-      // Fade out the trash
-      item.classList.add("removed");
+    if (distance < 35) return;
 
-      // Remove the element from the DOM
-      setTimeout(() => {
-        item.remove();
-      }, 300);
+    // Determine where the swipe ended.
+    const greenRect =
+      buckets[greenBucket].getBoundingClientRect();
 
+    const greenCenter =
+      greenRect.left + greenRect.width / 2;
+
+    // Accept a swipe ending in the green bucket's lane.
+    const areaRect = trashArea.getBoundingClientRect();
+    const targetX = greenCenter - areaRect.left;
+    const endX = event.clientX - areaRect.left;
+
+    const laneWidth =
+      document.querySelector(".well").getBoundingClientRect().width;
+
+    const reachedGreen =
+      Math.abs(endX - targetX) <= laneWidth / 2;
+
+    if (!reachedGreen) {
       instructions.textContent =
-        "Great job! You removed some trash!";
+        "Swipe the trash toward the GREEN bucket!";
+      return;
     }
-  });
-}
 
-// LOWER AND RAISE BUCKETS
-function moveBucket(index) {
-  if (!gameRunning) return;
+    // Remove trash from the DOM
+    item.classList.add("removed");
+    item.style.pointerEvents = "none";
 
-  if (
-    activeBucket !== null &&
-    activeBucket !== index
-  ) {
-    return;
-  }
+    setTimeout(() => item.remove(), 200);
 
-  const bucket = buckets[index];
-  const rope = ropes[index];
-
-  if (bucketState === "idle") {
-    activeBucket = index;
-    bucketState = "lowering";
-    bucketStartTime = Date.now();
-
-    bucket.classList.add("lowered");
-    rope.classList.add("lowered");
+    addPoints(20);
 
     instructions.textContent =
-      "Swipe away trash, then tap again!";
+      "♻️ +20 points! Trash collected by the green bucket!";
 
-    animationTimeout = setTimeout(() => {
-      if (
-        gameRunning &&
-        activeBucket === index &&
-        bucketState === "lowering"
-      ) {
-        bucketState = "collecting";
-        bucket.classList.add("filled");
+    // A winning score ends the game immediately.
+    if (score >= settings.target) {
+      endGame(true, "You reached your clean water goal!");
+    }
+  });
 
-        instructions.textContent =
-          "Tap the bucket again to collect water!";
-      }
-    }, 800);
+  item.addEventListener("pointercancel", () => {
+    dragging = false;
+    item.classList.remove("dragging");
+  });
+}
 
-  } else if (bucketState === "collecting") {
-    checkWater(index);
+// LEVER CONTROLS ALL THREE BUCKETS
+function moveLever() {
+  if (!gameRunning) return;
+
+  if (bucketState === "raised") {
+    lowerAllBuckets();
+  } else if (bucketState === "lowered") {
+    raiseAllBuckets();
   }
 }
 
-// CHECK IF WATER IS CLEAN
-function checkWater(index) {
-  const contaminated = Array.from(
-    trashArea.querySelectorAll(".trash")
-  ).some(item => {
-    return (
-      Number(item.dataset.lane) === index &&
-      !item.classList.contains("removed")
-    );
-  });
+function lowerAllBuckets() {
+  bucketState = "moving";
+  leverButton.disabled = true;
 
-  if (contaminated) {
+  buckets.forEach(bucket => bucket.classList.add("lowered"));
+  ropes.forEach(rope => rope.classList.add("lowered"));
+  labels.forEach(label => label.classList.add("lowered"));
+
+  instructions.textContent =
+    "Swipe trash from the water lanes into the green bucket!";
+
+  const token = roundToken;
+
+  animationTimeout = setTimeout(() => {
+    if (!gameRunning || token !== roundToken) return;
+
+    bucketState = "lowered";
+    leverButton.disabled = false;
+    leverText.textContent = "RAISE";
+    leverHandle.textContent = "🟢";
+  }, 700);
+}
+
+function raiseAllBuckets() {
+  if (!gameRunning) return;
+
+  // Check whether trash remains in either water lane.
+  const remainingTrash = Array.from(
+    trashArea.querySelectorAll(".trash:not(.removed)")
+  );
+
+  if (remainingTrash.length > 0) {
     endGame(
       false,
-      "Oh no! Trash contaminated your bucket!"
+      "Water contaminated! Clear all trash before raising the buckets."
     );
     return;
   }
 
-  // Calculate points based on speed
-  const collectionTime = (
-    Date.now() - bucketStartTime
-  ) / 1000;
+  bucketState = "moving";
+  leverButton.disabled = true;
 
-  const points = Math.max(
-    10,
-    Math.round(100 / Math.max(collectionTime, 0.5))
-  );
+  resetBuckets();
 
+  // Two water buckets earn 50 points each.
+  addPoints(100);
+
+  if (score >= settings.target) {
+    endGame(true, "You reached your clean water goal!");
+    return;
+  }
+
+  instructions.textContent =
+    "💧 +100 points! Both water buckets collected clean water!";
+
+  const token = roundToken;
+
+  animationTimeout = setTimeout(() => {
+    if (!gameRunning || token !== roundToken) return;
+
+    nextRound();
+  }, 700);
+}
+
+// START THE NEXT ROUND
+function nextRound() {
+  round++;
+  roundDisplay.textContent = round;
+
+  bucketState = "raised";
+
+  // Assign green to a different bucket.
+  chooseGreenBucket();
+
+  // Create fresh trash in the two water lanes.
+  createTrash();
+
+  leverText.textContent = "LOWER";
+  leverHandle.textContent = "🔴";
+  leverButton.disabled = false;
+
+  instructions.textContent =
+    `Round ${round}! The green bucket has moved. Lower all buckets!`;
+}
+
+// UPDATE SCORE AND PROGRESS BAR
+function addPoints(points) {
   score += points;
   scoreDisplay.textContent = score;
 
-  // Update progress bar
   const progress = Math.min(
-    (score / currentDifficulty.target) * 100,
+    (score / settings.target) * 100,
     100
   );
 
   progressBar.style.width = `${progress}%`;
-
-  playWaterSound();
-
-  // CHECK WIN CONDITION
-  if (score >= currentDifficulty.target) {
-    endGame(
-      true,
-      "Congratulations! You reached your water goal!"
-    );
-    return;
-  }
-
-  const bucket = buckets[index];
-  const rope = ropes[index];
-
-  bucketState = "raising";
-
-  bucket.classList.remove("lowered");
-  rope.classList.remove("lowered");
-
-  instructions.textContent =
-    `Clean water collected! +${points} points!`;
-
-  animationTimeout = setTimeout(() => {
-    if (!gameRunning) return;
-
-    bucket.classList.remove("filled");
-
-    activeBucket = null;
-    bucketState = "idle";
-
-    createTrash();
-
-    instructions.textContent =
-      "Choose another bucket and collect more water!";
-  }, 800);
+  playSound();
 }
 
-// WATER SOUND EFFECT
-function playWaterSound() {
+// SIMPLE COLLECTION SOUND
+function playSound() {
   try {
     const AudioContextClass =
       window.AudioContext || window.webkitAudioContext;
 
     if (!AudioContextClass) return;
 
-    const audioContext = new AudioContextClass();
-    const oscillator = audioContext.createOscillator();
-    const gainNode = audioContext.createGain();
+    const context = new AudioContextClass();
+    const oscillator = context.createOscillator();
+    const gain = context.createGain();
 
     oscillator.type = "sine";
-
     oscillator.frequency.setValueAtTime(
-      500,
-      audioContext.currentTime
+      500, context.currentTime
     );
-
     oscillator.frequency.exponentialRampToValueAtTime(
-      150,
-      audioContext.currentTime + 0.25
+      180, context.currentTime + 0.2
     );
 
-    gainNode.gain.setValueAtTime(
-      0.15,
-      audioContext.currentTime
+    gain.gain.setValueAtTime(0.1, context.currentTime);
+    gain.gain.exponentialRampToValueAtTime(
+      0.001, context.currentTime + 0.25
     );
 
-    gainNode.gain.exponentialRampToValueAtTime(
-      0.001,
-      audioContext.currentTime + 0.3
-    );
-
-    oscillator.connect(gainNode);
-    gainNode.connect(audioContext.destination);
+    oscillator.connect(gain);
+    gain.connect(context.destination);
 
     oscillator.start();
-    oscillator.stop(audioContext.currentTime + 0.3);
-
-    oscillator.onended = () => audioContext.close();
+    oscillator.stop(context.currentTime + 0.25);
+    oscillator.onended = () => context.close();
   } catch (error) {
-    console.log("Sound unavailable.");
+    console.log("Audio unavailable");
   }
 }
 
-// WIN OR LOSE
+// END GAME
 function endGame(won, message) {
+  if (!gameRunning) return;
+
   gameRunning = false;
-  bucketState = "idle";
-  activeBucket = null;
+  bucketState = "finished";
+  roundToken++;
 
   clearInterval(timerInterval);
   clearTimeout(animationTimeout);
 
-  finalScoreDisplay.textContent = score;
-  gameOverMessage.textContent = message;
+  leverButton.disabled = true;
 
-  const heading = gameOverScreen.querySelector("h2");
-  heading.textContent = won ? "You Win! 🎉" : "Game Over!";
+  endTitle.textContent = won ? "You Win! 🎉" : "Game Over!";
+  gameOverMessage.textContent = message;
+  finalScoreDisplay.textContent = score;
 
   if (score > highScore) {
     highScore = score;
@@ -395,43 +446,47 @@ function endGame(won, message) {
     try {
       localStorage.setItem("highScore", highScore);
     } catch (error) {
-      console.log("High score could not be saved.");
+      console.log("High score could not be saved");
     }
   }
-
-  instructions.textContent = won
-    ? "Amazing! You collected enough clean water!"
-    : "Try again and protect the water!";
 
   gameOverScreen.classList.remove("hidden");
 }
 
-// BUTTON EVENT LISTENERS
-playButton.addEventListener("click", startGame);
+// RESTART TO DIFFICULTY SCREEN
+function restartGame() {
+  clearInterval(timerInterval);
+  clearTimeout(animationTimeout);
+  roundToken++;
 
-// Return to difficulty selection on replay
-restartButton.addEventListener("click", () => {
-  gameOverScreen.classList.add("hidden");
-  startScreen.classList.remove("hidden");
+  gameRunning = false;
+  bucketState = "raised";
 
   resetBuckets();
   trashArea.replaceChildren();
 
+  leverButton.disabled = true;
+  leverText.textContent = "LOWER";
+  leverHandle.textContent = "🔴";
+
   score = 0;
-  scoreDisplay.textContent = score;
+  scoreDisplay.textContent = 0;
+  roundDisplay.textContent = 1;
   progressBar.style.width = "0%";
 
-  updateDifficultyPreview();
+  previewDifficulty();
+
+  gameOverScreen.classList.add("hidden");
+  startScreen.classList.remove("hidden");
 
   instructions.textContent =
-    "Choose your difficulty and press Play!";
-});
+    "Select a difficulty and press Play!";
+}
 
-buckets.forEach((bucket, index) => {
-  bucket.addEventListener("click", () => {
-    moveBucket(index);
-  });
-});
+// EVENT LISTENERS
+playButton.addEventListener("click", startGame);
+restartButton.addEventListener("click", restartGame);
+leverButton.addEventListener("click", moveLever);
 
-// INITIAL DISPLAY
-updateDifficultyPreview();
+// INITIALIZE
+previewDifficulty();

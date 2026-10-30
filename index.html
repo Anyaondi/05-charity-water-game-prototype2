@@ -2,14 +2,14 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>Buckets of Water | charity: water</title>
   <link rel="stylesheet" href="styles.css">
   <script src="script.js" defer></script>
 </head>
 <body>
   <header>
-    <h1>Buckets of Water</h1>
+    <h1>💧 Buckets of Water</h1>
     <p>for charity: water 💛</p>
   </header>
 
@@ -17,40 +17,52 @@
     <section class="scoreboard">
       <div>🏆 High Score: <span id="highScore">0</span></div>
       <div>💧 Score: <span id="score">0</span></div>
-      <div>⏱ Time Left: <span id="timer">90</span>s</div>
+      <div>⏱ Time: <span id="timer">90</span>s</div>
+      <div>🔄 Round: <span id="round">1</span></div>
     </section>
 
     <section class="progress-section">
-      <p>Target Score: <span id="targetScore">300</span></p>
+      <p>Target: <span id="targetScore">300</span> points</p>
       <div class="progress-track">
         <div id="progressBar"></div>
       </div>
     </section>
 
-    <section id="gameArea" aria-label="Water collection game">
+    <section id="gameArea">
+      <div class="lever-panel">
+        <button id="leverButton" disabled>
+          <span id="leverHandle">🔴</span>
+          <span id="leverText">LOWER</span>
+        </button>
+        <small>BUCKET LEVER</small>
+      </div>
+
       <div class="wells">
-        <div class="well" data-well="0">
+        <div class="well" data-lane="0">
           <div class="well-top"></div>
           <div class="rope"></div>
-          <button class="bucket" aria-label="Move bucket one">🪣</button>
+          <div class="bucket" id="bucket0">🪣</div>
+          <div class="bucket-label" id="label0">WATER</div>
         </div>
 
-        <div class="well" data-well="1">
+        <div class="well" data-lane="1">
           <div class="well-top"></div>
           <div class="rope"></div>
-          <button class="bucket" aria-label="Move bucket two">🪣</button>
+          <div class="bucket" id="bucket1">🪣</div>
+          <div class="bucket-label" id="label1">WATER</div>
         </div>
 
-        <div class="well" data-well="2">
+        <div class="well" data-lane="2">
           <div class="well-top"></div>
           <div class="rope"></div>
-          <button class="bucket" aria-label="Move bucket three">🪣</button>
+          <div class="bucket" id="bucket2">🪣</div>
+          <div class="bucket-label" id="label2">WATER</div>
         </div>
       </div>
 
       <div id="water">
         <div id="trashArea"></div>
-        <div class="water-label">CLEAN WATER 💧</div>
+        <div class="water-label">💧 PROTECT THE CLEAN WATER 💧</div>
       </div>
     </section>
 
@@ -60,9 +72,13 @@
 
     <section id="startScreen" class="overlay">
       <h2>Ready to Collect Clean Water?</h2>
-      <p>Lower a bucket, swipe away trash, and collect water!</p>
+      <p>
+        Use the lever to lower all buckets.
+        Swipe trash into the green bucket,
+        then raise them to score!
+      </p>
 
-      <label for="difficulty">Choose Difficulty:</label>
+      <label for="difficulty">Choose Difficulty</label>
       <select id="difficulty">
         <option value="easy">Easy</option>
         <option value="normal">Normal</option>
@@ -73,8 +89,8 @@
     </section>
 
     <section id="gameOverScreen" class="overlay hidden">
-      <h2>Game Over!</h2>
-      <p id="gameOverMessage">Your water was contaminated!</p>
+      <h2 id="endTitle">Game Over!</h2>
+      <p id="gameOverMessage"></p>
       <h3>Final Score: <span id="finalScore">0</span></h3>
       <button id="restartButton">TRY AGAIN</button>
     </section>

@@ -21,21 +21,20 @@ Secondary Colors:
 
 body {
   margin: 0;
-  font-family: Arial, sans-serif;
   background: #f8f8f8;
-  text-align: center;
   color: #222;
+  font-family: Arial, sans-serif;
+  text-align: center;
 }
 
 header {
   background: #ffd100;
-  padding: 15px;
+  padding: 16px;
   border-bottom: 3px solid #222;
 }
 
 header h1 {
-  margin: 5px;
-  font-size: 32px;
+  margin: 4px;
 }
 
 header p {
@@ -48,9 +47,8 @@ header p {
   justify-content: space-around;
   flex-wrap: wrap;
   gap: 12px;
-  padding: 18px;
+  padding: 16px;
   background: #fff3b0;
-  font-size: 18px;
   font-weight: bold;
 }
 
@@ -86,22 +84,23 @@ main {
 
 #gameArea {
   position: relative;
-  height: 470px;
+  height: 480px;
   overflow: hidden;
   background: linear-gradient(
     to bottom,
     #fff 0%,
-    #fff 35%,
-    #ad8960 35%,
-    #ad8960 100%
+    #fff 36%,
+    #ae8b65 36%,
+    #ae8b65 100%
   );
 }
 
+/* THREE WELLS */
 .wells {
   position: absolute;
   top: 35px;
-  left: 0;
-  width: 100%;
+  left: 12%;
+  width: 86%;
   display: flex;
   justify-content: space-around;
   z-index: 3;
@@ -109,12 +108,14 @@ main {
 
 .well {
   position: relative;
-  width: 28%;
-  height: 280px;
+  width: 29%;
+  height: 310px;
 }
 
 .well-top {
   height: 125px;
+  border: 12px solid #857a76;
+  border-radius: 45% 45% 20% 20%;
   background: repeating-linear-gradient(
     0deg,
     #a99d99 0px,
@@ -122,8 +123,6 @@ main {
     #7d7370 30px,
     #7d7370 33px
   );
-  border: 12px solid #857a76;
-  border-radius: 45% 45% 20% 20%;
   box-shadow: inset 0 18px #514a48;
 }
 
@@ -134,7 +133,7 @@ main {
   width: 4px;
   height: 55px;
   background: #6b4d31;
-  transition: height 0.8s ease;
+  transition: height 0.7s;
 }
 
 .bucket {
@@ -142,57 +141,123 @@ main {
   top: 150px;
   left: 50%;
   transform: translateX(-50%);
-  border: none;
-  background: transparent;
   font-size: 65px;
-  cursor: pointer;
-  transition: top 0.8s ease;
+  transition: top 0.7s;
   z-index: 5;
-  touch-action: manipulation;
+  filter: drop-shadow(0 3px 3px #0004);
+}
+
+/* GREEN TRASH BUCKET */
+.bucket.green {
+  background: #39b54a;
+  border: 4px solid #187c2c;
+  border-radius: 12px 12px 22px 22px;
+  padding: 0 5px;
 }
 
 .bucket.lowered {
-  top: 280px;
+  top: 285px;
 }
 
 .rope.lowered {
-  height: 185px;
+  height: 190px;
 }
 
-.bucket.filled {
-  filter: drop-shadow(0 0 8px #00bfff);
+.bucket-label {
+  position: absolute;
+  top: 235px;
+  left: 50%;
+  transform: translateX(-50%);
+  padding: 5px 8px;
+  border-radius: 6px;
+  background: #00b9e9;
+  color: white;
+  font-size: 12px;
+  font-weight: bold;
+  white-space: nowrap;
+  z-index: 6;
 }
 
+.bucket-label.trash-label {
+  background: #228b22;
+}
+
+.bucket-label.lowered {
+  top: 370px;
+}
+
+/* SIDE LEVER */
+.lever-panel {
+  position: absolute;
+  top: 160px;
+  left: 8px;
+  width: 10%;
+  min-width: 70px;
+  z-index: 8;
+}
+
+#leverButton {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 8px;
+  width: 100%;
+  padding: 14px 4px;
+  background: #ffd100;
+  border: 3px solid #333;
+  border-radius: 12px;
+  font-weight: bold;
+  cursor: pointer;
+}
+
+#leverButton:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+#leverHandle {
+  font-size: 32px;
+}
+
+.lever-panel small {
+  display: block;
+  margin-top: 7px;
+  font-size: 10px;
+  font-weight: bold;
+}
+
+/* WATER */
 #water {
   position: absolute;
   bottom: 0;
   left: 0;
   width: 100%;
-  height: 140px;
+  height: 145px;
   background: #04b9ed;
-  border-top: 15px solid #a4e8fa;
+  border-top: 14px solid #a4e8fa;
   z-index: 2;
-  animation: waterMove 3s infinite alternate ease-in-out;
+  animation: waves 3s infinite alternate ease-in-out;
 }
 
-@keyframes waterMove {
-  from { border-radius: 30% 40% 0 0; }
-  to { border-radius: 45% 25% 0 0; }
+@keyframes waves {
+  from { border-radius: 25% 35% 0 0; }
+  to { border-radius: 40% 20% 0 0; }
 }
 
 .water-label {
   position: absolute;
-  bottom: 15px;
+  bottom: 12px;
   width: 100%;
-  font-weight: bold;
   color: white;
+  font-weight: bold;
   pointer-events: none;
 }
 
+/* TRASH */
 #trashArea {
   position: absolute;
   inset: 0;
-  z-index: 6;
+  z-index: 7;
   pointer-events: none;
 }
 
@@ -203,18 +268,23 @@ main {
   user-select: none;
   touch-action: none;
   pointer-events: auto;
+  transition: opacity 0.2s;
+}
+
+.trash.dragging {
+  cursor: grabbing;
+  opacity: 0.7;
 }
 
 .trash.removed {
   opacity: 0;
-  transform: translateX(100px) rotate(90deg);
-  transition: 0.3s;
   pointer-events: none;
 }
 
+/* SCREENS */
 .overlay {
   position: absolute;
-  top: 80px;
+  top: 75px;
   left: 50%;
   transform: translateX(-50%);
   width: min(90%, 420px);
@@ -222,8 +292,8 @@ main {
   background: rgba(255, 255, 255, 0.97);
   border: 3px solid #222;
   border-radius: 20px;
-  z-index: 20;
   box-shadow: 0 8px 25px #0003;
+  z-index: 20;
 }
 
 .hidden {
@@ -235,32 +305,24 @@ main {
   margin: 12px auto 20px;
   padding: 10px;
   font-size: 18px;
-  border: 2px solid #222;
-  border-radius: 8px;
 }
 
 #playButton,
 #restartButton {
-  background: #ffd100;
-  color: #222;
   padding: 15px 35px;
-  font-size: 22px;
-  font-weight: bold;
+  background: #ffd100;
   border: none;
   border-radius: 12px;
+  font-size: 20px;
+  font-weight: bold;
   cursor: pointer;
 }
 
-#playButton:hover,
-#restartButton:hover {
-  background: #e8b900;
-}
-
 #instructions {
-  font-size: 20px;
-  font-weight: bold;
-  padding: 15px;
   min-height: 65px;
+  padding: 15px;
+  font-size: 18px;
+  font-weight: bold;
 }
 
 footer {
@@ -275,13 +337,19 @@ footer a {
 
 @media (max-width: 600px) {
   header h1 { font-size: 24px; }
-  .scoreboard { font-size: 15px; }
-  .well { width: 30%; }
-  .well-top { height: 100px; }
-  .bucket { font-size: 45px; }
+  .scoreboard { font-size: 14px; }
+  .wells { left: 16%; width: 82%; }
+  .well { width: 31%; }
+  .well-top { height: 100px; border-width: 8px; }
+  .bucket { font-size: 40px; }
+  .bucket.green { padding: 0 2px; }
+  .bucket-label { font-size: 9px; padding: 4px; }
   .rope { top: 85px; height: 70px; }
-  .rope.lowered { height: 200px; }
-  .bucket.lowered { top: 280px; }
+  .rope.lowered { height: 210px; }
+  .bucket.lowered { top: 285px; }
+  .lever-panel { min-width: 60px; }
+  #leverHandle { font-size: 24px; }
+  .trash { font-size: 29px; }
 }
 
 @media (prefers-reduced-motion: reduce) {
