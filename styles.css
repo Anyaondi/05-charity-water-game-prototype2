@@ -1,0 +1,287 @@
+/* Charity: water Brand Colors
+
+Primary Colors:
+- Yellow:     #FFC907
+- Blue:       #2E9DF7
+
+Secondary Colors:
+- Light Blue: #8BD1CB
+- Green:      #4FCB53
+- Orange:     #FF902A
+- Red:        #F5402C
+- Dark Green: #159A48
+- Pink:       #F16061
+
+*/
+
+* {
+  box-sizing: border-box;
+}
+
+body {
+  margin: 0;
+  font-family: Arial, sans-serif;
+  background: #f8f8f8;
+  text-align: center;
+  color: #222;
+}
+
+header {
+  background: white;
+  padding: 15px;
+  border-bottom: 3px solid #222;
+}
+
+header h1 {
+  font-size: 32px;
+  margin: 5px;
+}
+
+header p {
+  color: #d4a900;
+  font-weight: bold;
+}
+
+.scoreboard {
+  display: flex;
+  justify-content: space-around;
+  flex-wrap: wrap;
+  gap: 12px;
+  padding: 20px;
+  background: #fff3b0;
+  font-size: 20px;
+  font-weight: bold;
+}
+
+main {
+  position: relative;
+}
+
+#gameArea {
+  position: relative;
+  height: 470px;
+  overflow: hidden;
+  background: linear-gradient(
+    to bottom,
+    #ffffff 0%,
+    #ffffff 35%,
+    #ad8960 35%,
+    #ad8960 100%
+  );
+}
+
+.wells {
+  position: absolute;
+  top: 35px;
+  left: 0;
+  width: 100%;
+  display: flex;
+  justify-content: space-around;
+  z-index: 3;
+}
+
+.well {
+  position: relative;
+  width: 28%;
+  height: 280px;
+}
+
+.well-top {
+  height: 125px;
+  background: repeating-linear-gradient(
+    0deg,
+    #a99d99 0px,
+    #a99d99 28px,
+    #7d7370 30px,
+    #7d7370 33px
+  );
+  border: 12px solid #857a76;
+  border-radius: 45% 45% 20% 20%;
+  box-shadow: inset 0 18px #514a48;
+}
+
+.rope {
+  position: absolute;
+  top: 105px;
+  left: 50%;
+  width: 4px;
+  height: 55px;
+  background: #6b4d31;
+  transition: height 0.8s ease;
+}
+
+.bucket {
+  position: absolute;
+  top: 150px;
+  left: 50%;
+  transform: translateX(-50%);
+  border: none;
+  background: transparent;
+  font-size: 65px;
+  cursor: pointer;
+  transition: top 0.8s ease;
+  z-index: 5;
+  touch-action: manipulation;
+}
+
+.bucket.lowered {
+  top: 280px;
+}
+
+.rope.lowered {
+  height: 185px;
+}
+
+.bucket.filled {
+  filter: drop-shadow(0 0 8px #00bfff);
+}
+
+#water {
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  width: 100%;
+  height: 140px;
+  background: #04b9ed;
+  border-top: 15px solid #a4e8fa;
+  z-index: 2;
+  animation: waterMove 3s infinite alternate ease-in-out;
+}
+
+@keyframes waterMove {
+  from {
+    border-radius: 30% 40% 0 0;
+  }
+  to {
+    border-radius: 45% 25% 0 0;
+  }
+}
+
+.water-label {
+  position: absolute;
+  bottom: 15px;
+  width: 100%;
+  font-weight: bold;
+  color: white;
+  pointer-events: none;
+}
+
+#trashArea {
+  position: absolute;
+  inset: 0;
+  z-index: 6;
+  pointer-events: none;
+}
+
+.trash {
+  position: absolute;
+  font-size: 35px;
+  cursor: grab;
+  user-select: none;
+  touch-action: none;
+  pointer-events: auto;
+}
+
+.trash.removed {
+  opacity: 0;
+  transform: translateX(100px) rotate(90deg);
+  transition: 0.3s;
+  pointer-events: none;
+}
+
+.overlay {
+  position: absolute;
+  top: 100px;
+  left: 50%;
+  transform: translateX(-50%);
+  width: min(90%, 420px);
+  padding: 30px;
+  background: rgba(255,255,255,0.97);
+  border: 3px solid #222;
+  border-radius: 20px;
+  z-index: 20;
+  box-shadow: 0 8px 25px #0003;
+}
+
+.hidden {
+  display: none;
+}
+
+button {
+  font-family: inherit;
+}
+
+#playButton,
+#restartButton {
+  background: #ffd100;
+  color: #222;
+  padding: 15px 35px;
+  font-size: 22px;
+  font-weight: bold;
+  border: none;
+  border-radius: 12px;
+  cursor: pointer;
+}
+
+#playButton:hover,
+#restartButton:hover {
+  background: #e8b900;
+}
+
+#instructions {
+  font-size: 20px;
+  font-weight: bold;
+  padding: 15px;
+}
+
+footer {
+  padding: 20px;
+  background: #222;
+  color: white;
+}
+
+footer a {
+  color: #ffd100;
+}
+
+@media (max-width: 600px) {
+  header h1 {
+    font-size: 24px;
+  }
+
+  .scoreboard {
+    font-size: 15px;
+  }
+
+  .well {
+    width: 30%;
+  }
+
+  .bucket {
+    font-size: 45px;
+  }
+
+  .well-top {
+    height: 100px;
+  }
+
+  .rope {
+    top: 85px;
+    height: 70px;
+  }
+
+  .rope.lowered {
+    height: 200px;
+  }
+
+  .bucket.lowered {
+    top: 280px;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after {
+    animation-duration: 0.01ms !important;
+    transition-duration: 0.01ms !important;
+  }
+}
