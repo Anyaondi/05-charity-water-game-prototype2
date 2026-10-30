@@ -210,8 +210,8 @@ function enableTrashSwipe(item) {
     startX = event.clientX;
     startY = event.clientY;
 
-    originalLeft = item.offsetLeft;
-    originalTop = item.offsetTop;
+    originalLeft = parseFloat(item.style.left);
+    originalTop = parseFloat(item.style.top);
 
     item.classList.add("dragging");
     item.setPointerCapture(event.pointerId);
