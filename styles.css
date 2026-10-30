@@ -235,7 +235,7 @@ main {
   height: 145px;
   background: #04b9ed;
   border-top: 14px solid #a4e8fa;
-  z-index: 2;
+  z-index: 7;
   animation: waves 3s infinite alternate ease-in-out;
 }
 
