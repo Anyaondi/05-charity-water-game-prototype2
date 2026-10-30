@@ -1,8 +1,6 @@
 // Log a message to the console to ensure the script is linked correctly
 console.log('JavaScript file is linked correctly.');
 
-
-
 const playButton = document.getElementById("playButton");
 const restartButton = document.getElementById("restartButton");
 const leverButton = document.getElementById("leverButton");
@@ -198,7 +196,6 @@ function getLaneCenter(lane) {
 }
 
 // SWIPE TRASH INTO GREEN BUCKET
-f
 function enableTrashSwipe(item) {
   let dragging = false;
   let startX = 0;
