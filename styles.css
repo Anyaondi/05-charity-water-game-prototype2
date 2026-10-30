@@ -14,6 +14,7 @@ Secondary Colors:
 
 */
 
+
 * {
   box-sizing: border-box;
 }
@@ -27,18 +28,18 @@ body {
 }
 
 header {
-  background: white;
+  background: #ffd100;
   padding: 15px;
   border-bottom: 3px solid #222;
 }
 
 header h1 {
-  font-size: 32px;
   margin: 5px;
+  font-size: 32px;
 }
 
 header p {
-  color: #d4a900;
+  margin: 5px;
   font-weight: bold;
 }
 
@@ -47,10 +48,36 @@ header p {
   justify-content: space-around;
   flex-wrap: wrap;
   gap: 12px;
-  padding: 20px;
+  padding: 18px;
   background: #fff3b0;
-  font-size: 20px;
+  font-size: 18px;
   font-weight: bold;
+}
+
+.progress-section {
+  padding: 10px 20px;
+  background: white;
+}
+
+.progress-section p {
+  margin: 5px 0 10px;
+  font-weight: bold;
+}
+
+.progress-track {
+  max-width: 600px;
+  height: 20px;
+  margin: auto;
+  background: #ddd;
+  border-radius: 20px;
+  overflow: hidden;
+}
+
+#progressBar {
+  width: 0%;
+  height: 100%;
+  background: #00b9e9;
+  transition: width 0.3s;
 }
 
 main {
@@ -63,8 +90,8 @@ main {
   overflow: hidden;
   background: linear-gradient(
     to bottom,
-    #ffffff 0%,
-    #ffffff 35%,
+    #fff 0%,
+    #fff 35%,
     #ad8960 35%,
     #ad8960 100%
   );
@@ -149,12 +176,8 @@ main {
 }
 
 @keyframes waterMove {
-  from {
-    border-radius: 30% 40% 0 0;
-  }
-  to {
-    border-radius: 45% 25% 0 0;
-  }
+  from { border-radius: 30% 40% 0 0; }
+  to { border-radius: 45% 25% 0 0; }
 }
 
 .water-label {
@@ -191,12 +214,12 @@ main {
 
 .overlay {
   position: absolute;
-  top: 100px;
+  top: 80px;
   left: 50%;
   transform: translateX(-50%);
   width: min(90%, 420px);
-  padding: 30px;
-  background: rgba(255,255,255,0.97);
+  padding: 25px;
+  background: rgba(255, 255, 255, 0.97);
   border: 3px solid #222;
   border-radius: 20px;
   z-index: 20;
@@ -207,8 +230,13 @@ main {
   display: none;
 }
 
-button {
-  font-family: inherit;
+#difficulty {
+  display: block;
+  margin: 12px auto 20px;
+  padding: 10px;
+  font-size: 18px;
+  border: 2px solid #222;
+  border-radius: 8px;
 }
 
 #playButton,
@@ -232,6 +260,7 @@ button {
   font-size: 20px;
   font-weight: bold;
   padding: 15px;
+  min-height: 65px;
 }
 
 footer {
@@ -245,38 +274,14 @@ footer a {
 }
 
 @media (max-width: 600px) {
-  header h1 {
-    font-size: 24px;
-  }
-
-  .scoreboard {
-    font-size: 15px;
-  }
-
-  .well {
-    width: 30%;
-  }
-
-  .bucket {
-    font-size: 45px;
-  }
-
-  .well-top {
-    height: 100px;
-  }
-
-  .rope {
-    top: 85px;
-    height: 70px;
-  }
-
-  .rope.lowered {
-    height: 200px;
-  }
-
-  .bucket.lowered {
-    top: 280px;
-  }
+  header h1 { font-size: 24px; }
+  .scoreboard { font-size: 15px; }
+  .well { width: 30%; }
+  .well-top { height: 100px; }
+  .bucket { font-size: 45px; }
+  .rope { top: 85px; height: 70px; }
+  .rope.lowered { height: 200px; }
+  .bucket.lowered { top: 280px; }
 }
 
 @media (prefers-reduced-motion: reduce) {

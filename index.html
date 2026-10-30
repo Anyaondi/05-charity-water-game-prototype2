@@ -8,7 +8,6 @@
   <script src="script.js" defer></script>
 </head>
 <body>
-
   <header>
     <h1>Buckets of Water</h1>
     <p>for charity: water 💛</p>
@@ -18,45 +17,35 @@
     <section class="scoreboard">
       <div>🏆 High Score: <span id="highScore">0</span></div>
       <div>💧 Score: <span id="score">0</span></div>
-      <div>⏱ Time: <span id="timer">0</span>s</div>
+      <div>⏱ Time Left: <span id="timer">90</span>s</div>
     </section>
 
-    <section id="startScreen" class="overlay">
-      <h2>Ready to Collect Clean Water?</h2>
-      <p>
-        Lower a bucket, swipe trash away,
-        and collect clean water!
-      </p>
-      <button id="playButton">▶ PLAY</button>
+    <section class="progress-section">
+      <p>Target Score: <span id="targetScore">300</span></p>
+      <div class="progress-track">
+        <div id="progressBar"></div>
+      </div>
     </section>
 
     <section id="gameArea" aria-label="Water collection game">
       <div class="wells">
-
         <div class="well" data-well="0">
           <div class="well-top"></div>
           <div class="rope"></div>
-          <button class="bucket" aria-label="Move bucket one">
-            🪣
-          </button>
+          <button class="bucket" aria-label="Move bucket one">🪣</button>
         </div>
 
         <div class="well" data-well="1">
           <div class="well-top"></div>
           <div class="rope"></div>
-          <button class="bucket" aria-label="Move bucket two">
-            🪣
-          </button>
+          <button class="bucket" aria-label="Move bucket two">🪣</button>
         </div>
 
         <div class="well" data-well="2">
           <div class="well-top"></div>
           <div class="rope"></div>
-          <button class="bucket" aria-label="Move bucket three">
-            🪣
-          </button>
+          <button class="bucket" aria-label="Move bucket three">🪣</button>
         </div>
-
       </div>
 
       <div id="water">
@@ -65,13 +54,27 @@
       </div>
     </section>
 
-    <p id="instructions">
-      Press PLAY to begin!
+    <p id="instructions" aria-live="polite">
+      Select a difficulty and press Play!
     </p>
+
+    <section id="startScreen" class="overlay">
+      <h2>Ready to Collect Clean Water?</h2>
+      <p>Lower a bucket, swipe away trash, and collect water!</p>
+
+      <label for="difficulty">Choose Difficulty:</label>
+      <select id="difficulty">
+        <option value="easy">Easy</option>
+        <option value="normal">Normal</option>
+        <option value="hard">Hard</option>
+      </select>
+
+      <button id="playButton">▶ PLAY</button>
+    </section>
 
     <section id="gameOverScreen" class="overlay hidden">
       <h2>Game Over!</h2>
-      <p>Your water was contaminated!</p>
+      <p id="gameOverMessage">Your water was contaminated!</p>
       <h3>Final Score: <span id="finalScore">0</span></h3>
       <button id="restartButton">TRY AGAIN</button>
     </section>
@@ -84,6 +87,5 @@
       Learn more about charity: water
     </a>
   </footer>
-
 </body>
 </html>
