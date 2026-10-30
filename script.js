@@ -519,3 +519,9 @@ leverButton.addEventListener("click", moveLever);
 
 // INITIALIZE
 previewDifficulty();
+
+console.log("JavaScript loaded!");
+
+document.getElementById("playButton").addEventListener("click", () => {
+  console.log("PLAY BUTTON CLICKED!");
+});
