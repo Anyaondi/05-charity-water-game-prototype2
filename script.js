@@ -198,23 +198,43 @@ function getLaneCenter(lane) {
 }
 
 // SWIPE TRASH INTO GREEN BUCKET
+f
 function enableTrashSwipe(item) {
+  let dragging = false;
   let startX = 0;
   let startY = 0;
-  let dragging = false;
+  let originalLeft = 0;
+  let originalTop = 0;
 
-  item.addEventListener("pointerdown", event => {
+  item.addEventListener("pointerdown", (event) => {
     if (!gameRunning || bucketState !== "lowered") return;
 
+    dragging = true;
     startX = event.clientX;
     startY = event.clientY;
-    dragging = true;
+
+    originalLeft = item.offsetLeft;
+    originalTop = item.offsetTop;
 
     item.classList.add("dragging");
     item.setPointerCapture(event.pointerId);
+
+    event.preventDefault();
   });
 
-  item.addEventListener("pointerup", event => {
+  // MAKE TRASH FOLLOW THE MOUSE OR FINGER
+  item.addEventListener("pointermove", (event) => {
+    if (!dragging) return;
+
+    const moveX = event.clientX - startX;
+    const moveY = event.clientY - startY;
+
+    item.style.left = `${originalLeft + moveX}px`;
+    item.style.top = `${originalTop + moveY}px`;
+  });
+
+  // CHECK WHERE TRASH WAS DROPPED
+  item.addEventListener("pointerup", (event) => {
     if (!dragging) return;
 
     dragging = false;
@@ -222,57 +242,66 @@ function enableTrashSwipe(item) {
 
     if (!gameRunning || bucketState !== "lowered") return;
 
-    const distance = Math.hypot(
-      event.clientX - startX,
-      event.clientY - startY
-    );
-
-    if (distance < 35) return;
-
-    // Determine where the swipe ended.
     const greenRect =
       buckets[greenBucket].getBoundingClientRect();
 
-    const greenCenter =
+    const trashRect = item.getBoundingClientRect();
+
+    const trashCenterX =
+      trashRect.left + trashRect.width / 2;
+
+    const greenCenterX =
       greenRect.left + greenRect.width / 2;
 
-    // Accept a swipe ending in the green bucket's lane.
-    const areaRect = trashArea.getBoundingClientRect();
-    const targetX = greenCenter - areaRect.left;
-    const endX = event.clientX - areaRect.left;
+    // Allow a slightly larger drop area
+    const dropDistance = Math.abs(
+      trashCenterX - greenCenterX
+    );
 
-    const laneWidth =
-      document.querySelector(".well").getBoundingClientRect().width;
+    const allowedDistance = Math.max(
+      greenRect.width / 2 + 35,
+      55
+    );
 
-    const reachedGreen =
-      Math.abs(endX - targetX) <= laneWidth / 2;
+    if (dropDistance <= allowedDistance) {
+      // SUCCESS: TRASH REACHES GREEN BUCKET
+      item.classList.add("removed");
+      item.style.pointerEvents = "none";
 
-    if (!reachedGreen) {
+      addPoints(20);
+
       instructions.textContent =
-        "Swipe the trash toward the GREEN bucket!";
-      return;
-    }
+        "♻️ Great job! +20 points for collecting trash!";
 
-    // Remove trash from the DOM
-    item.classList.add("removed");
-    item.style.pointerEvents = "none";
+      setTimeout(() => {
+        item.remove();
+      }, 200);
 
-    setTimeout(() => item.remove(), 200);
+      if (score >= settings.target) {
+        endGame(
+          true,
+          "Congratulations! You reached your goal!"
+        );
+      }
 
-    addPoints(20);
+    } else {
+      // FAILED DROP: RETURN TRASH TO ORIGINAL POSITION
+      item.style.left = `${originalLeft}px`;
+      item.style.top = `${originalTop}px`;
 
-    instructions.textContent =
-      "♻️ +20 points! Trash collected by the green bucket!";
-
-    // A winning score ends the game immediately.
-    if (score >= settings.target) {
-      endGame(true, "You reached your clean water goal!");
+      instructions.textContent =
+        "Move the trash into the GREEN bucket!";
     }
   });
 
   item.addEventListener("pointercancel", () => {
+    if (!dragging) return;
+
     dragging = false;
     item.classList.remove("dragging");
+
+    item.style.left = `${originalLeft}px`;
+    item.style.top = `${originalTop}px`;
   });
 }
 
