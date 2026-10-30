@@ -261,25 +261,34 @@ main {
   pointer-events: none;
 }
 
+
 .trash {
   position: absolute;
   font-size: 35px;
   cursor: grab;
   user-select: none;
+  -webkit-user-select: none;
   touch-action: none;
   pointer-events: auto;
+  z-index: 10;
   transition: opacity 0.2s;
 }
 
 .trash.dragging {
   cursor: grabbing;
-  opacity: 0.7;
+  opacity: 0.85;
+  z-index: 100;
+  transition: none;
+  filter: drop-shadow(0 4px 6px rgba(0,0,0,0.3));
 }
 
 .trash.removed {
   opacity: 0;
   pointer-events: none;
+  transform: scale(0.3) !important;
+  transition: opacity 0.2s, transform 0.2s;
 }
+
 
 /* SCREENS */
 .overlay {
