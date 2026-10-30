@@ -196,6 +196,7 @@ function getLaneCenter(lane) {
 }
 
 // SWIPE TRASH INTO GREEN BUCKET
+
 function enableTrashSwipe(item) {
   let dragging = false;
   let startX = 0;
@@ -207,6 +208,7 @@ function enableTrashSwipe(item) {
     if (!gameRunning || bucketState !== "lowered") return;
 
     dragging = true;
+
     startX = event.clientX;
     startY = event.clientY;
 
@@ -219,18 +221,16 @@ function enableTrashSwipe(item) {
     event.preventDefault();
   });
 
-  // MAKE TRASH FOLLOW THE MOUSE OR FINGER
   item.addEventListener("pointermove", (event) => {
     if (!dragging) return;
 
-    const moveX = event.clientX - startX;
-    const moveY = event.clientY - startY;
+    const dx = event.clientX - startX;
+    const dy = event.clientY - startY;
 
-    item.style.left = `${originalLeft + moveX}px`;
-    item.style.top = `${originalTop + moveY}px`;
+    item.style.left = `${originalLeft + dx}px`;
+    item.style.top = `${originalTop + dy}px`;
   });
 
-  // CHECK WHERE TRASH WAS DROPPED
   item.addEventListener("pointerup", (event) => {
     if (!dragging) return;
 
@@ -242,52 +242,41 @@ function enableTrashSwipe(item) {
     const greenRect =
       buckets[greenBucket].getBoundingClientRect();
 
-    const trashRect = item.getBoundingClientRect();
-
-    const trashCenterX =
-      trashRect.left + trashRect.width / 2;
-
     const greenCenterX =
       greenRect.left + greenRect.width / 2;
 
-    // Allow a slightly larger drop area
-    const dropDistance = Math.abs(
-      trashCenterX - greenCenterX
-    );
+    const dropX = event.clientX;
 
-    const allowedDistance = Math.max(
-      greenRect.width / 2 + 35,
-      55
-    );
+    // Use the width of a well as the drop zone.
+    const wellWidth =
+      document.querySelector(".well").getBoundingClientRect().width;
 
-    if (dropDistance <= allowedDistance) {
-      // SUCCESS: TRASH REACHES GREEN BUCKET
+    const reachedGreen =
+      Math.abs(dropX - greenCenterX) <= wellWidth / 2;
+
+    if (reachedGreen) {
       item.classList.add("removed");
       item.style.pointerEvents = "none";
 
       addPoints(20);
 
       instructions.textContent =
-        "♻️ Great job! +20 points for collecting trash!";
+        "♻️ +20 points! Trash collected!";
 
       setTimeout(() => {
         item.remove();
       }, 200);
 
       if (score >= settings.target) {
-        endGame(
-          true,
-          "Congratulations! You reached your goal!"
-        );
+        endGame(true, "You reached your water goal!");
       }
-
     } else {
-      // FAILED DROP: RETURN TRASH TO ORIGINAL POSITION
+      // Return trash to its starting position.
       item.style.left = `${originalLeft}px`;
       item.style.top = `${originalTop}px`;
 
       instructions.textContent =
-        "Move the trash into the GREEN bucket!";
+        "Drag the trash into the GREEN bucket!";
     }
   });
 
